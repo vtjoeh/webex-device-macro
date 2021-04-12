@@ -1,19 +1,20 @@
 /*
   Webex FedRAMP dial pad.  Used for devices registered to Webex FedRAMP.  
+
   Purspose: By design, Webex FedRAMP devices cannot dial <meetingId>@webex.com .  By default the Webex button dials <meetingId>@webex.com. This makes the Webex Button useless.
-  This is a replacement Webex Button replacement that calls <meetingId>@<domain>.webex.com, therefore you will want to turn off the standard Webex Button.  
-  To turn off the standard Webex button go to the Webex device web page 'Settings' and search for 'CanShowWebexJoin'. Change to false. 
+  This is a replacement Webex Button replacement that calls <meetingId>@<domain>.webex.com. By default the macro removes the default Webex Button.  
+
 */
+
 
 import xapi from 'xapi';
 
 const YOURCOMPANY = 'Company XYZ'; // Replace with your company name
 const URISUFFIX = '@acecloud.webex.com'; // Replace with your Webex URI Suffix 
+const DEFAUlTWEBEXBUTTON = false;  // Show the default Webex Button?   Removes the button when script is run (or adds it if set to true).  Comment out or delete if not needed. 
 
 const PANELID = 'webexFedRAMP_panel';
 const FEEDBACKID = 'webexFedRampFeedbackId';
-
-const turnOffDefaultWebexButton = true; 
 
 function alert(title, text = '', duration = 12) {
   xapi.Command.UserInterface.Message.Alert.Display({
@@ -43,7 +44,6 @@ function panelClicked(event) {
 function makeCall(event) {
   if (event.FeedbackId === FEEDBACKID) {
     const dialString = event.Text;
-    console.log('dialString', dialString);
     if (/^\d{9,12}$/.test(dialString)) {
       let uri = dialString + URISUFFIX;
       let displayName = YOURCOMPANY + ' Webex ' + dialString;
@@ -62,9 +62,13 @@ function makeCall(event) {
   }
 }
 
-if(turnOffDefaultWebexButton){
-  
+if (DEFAUlTWEBEXBUTTON) {
+  xapi.Config.UserInterface.Features.Call.JoinWebex.set('Auto');
+} else {
+  xapi.Config.UserInterface.Features.Call.JoinWebex.set('Hidden');
 }
 
 xapi.Event.UserInterface.Message.TextInput.Response.on(makeCall);
 xapi.Event.UserInterface.Extensions.Panel.Clicked.on(panelClicked);
+
+
