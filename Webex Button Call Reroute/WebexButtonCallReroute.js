@@ -22,11 +22,9 @@ function recall(callDisconnect) {
   // console.log('callDisconnect', callDisconnect); 
   let uri = callDisconnect.RequestedURI.replace(callPattern, '$2' + uriSuffix);
   let displayName = uri.replace(uriPattern,'$1'); 
-  console.log('displayName', displayName); 
-  console.log('uri', uri);
   if (callErrorRegex.test(callDisconnect.CauseString) && callPattern.test(callDisconnect.RequestedURI)) {
 
-    console.log('Calling uri', uri);
+    console.log('Reattemping call to:', uri);
     xapi.Command.Dial({ Number: uri, DisplayName: displayName }).then(() => {
      //  alert('Reattempting. Please Wait.');
     });
@@ -34,7 +32,7 @@ function recall(callDisconnect) {
 
   }
   else if (callErrorRegex.test(callDisconnect.CauseString) && callPatternReattempt.test(callDisconnect.RequestedURI)) {
-    console.log('Last URI is a bad reattempt');
+    console.log('Last URI is a bad reattempt.  Meeting not found.', uri);
     //   alert('Meeting not found');
   }
 }
